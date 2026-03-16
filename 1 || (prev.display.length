@@ -1,0 +1,566 @@
+2 && prev.display.startsWith('-'))) {
+            return { ...prev, display: '0' };
+          }
+          return { ...prev, display: prev.display.slice(0, -1) };
+        });
+      } else if (key === '%') {
+        e.preventDefault();
+        handlePercent();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleDigit, handleOperator, handleEquals, handleClear, handlePercent]);
+
+  const displayLength = state.display.length;
+  const displaySizeClass =
+    displayLength > 12
+      ? styles.xsmall
+      : displayLength > 9
+      ? styles.small
+      : '';
+
+  const isOperatorActive = (op: Operator) =>
+    state.operator === op && state.waitingForOperand;
+
+  return (
+    <div className={styles.wrapper}>
+      <div className={styles.calculator}>
+        <div className={styles.display}>
+          <div className={styles.expression}>{state.expression}</div>
+          <div className={`${styles.current} ${displaySizeClass}`}>
+            {state.display}
+          </div>
+        </div>
+
+        <div className={styles.buttons}>
+          {/* Row 1 */}
+          <button
+            className={`${styles.btn} ${styles.btnFunction}`}
+            onClick={handleClear}
+            aria-label="Clear"
+          >
+            {state.display !== '0' || state.expression !== '' ? 'C' : 'AC'}
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnFunction}`}
+            onClick={handleToggleSign}
+            aria-label="Toggle sign"
+          >
+            +/−
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnFunction}`}
+            onClick={handlePercent}
+            aria-label="Percent"
+          >
+            %
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnOperator} ${
+              isOperatorActive('÷') ? styles.btnOperatorActive : ''
+            }`}
+            onClick={() => handleOperator('÷')}
+            aria-label="Divide"
+          >
+            ÷
+          </button>
+
+          {/* Row 2 */}
+          <button
+            className={`${styles.btn} ${styles.btnNumber}`}
+            onClick={() => handleDigit('7')}
+            aria-label="7"
+          >
+            7
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnNumber}`}
+            onClick={() => handleDigit('8')}
+            aria-label="8"
+          >
+            8
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnNumber}`}
+            onClick={() => handleDigit('9')}
+            aria-label="9"
+          >
+            9
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnOperator} ${
+              isOperatorActive('×') ? styles.btnOperatorActive : ''
+            }`}
+            onClick={() => handleOperator('×')}
+            aria-label="Multiply"
+          >
+            ×
+          </button>
+
+          {/* Row 3 */}
+          <button
+            className={`${styles.btn} ${styles.btnNumber}`}
+            onClick={() => handleDigit('4')}
+            aria-label="4"
+          >
+            4
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnNumber}`}
+            onClick={() => handleDigit('5')}
+            aria-label="5"
+          >
+            5
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnNumber}`}
+            onClick={() => handleDigit('6')}
+            aria-label="6"
+          >
+            6
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnOperator} ${
+              isOperatorActive('-') ? styles.btnOperatorActive : ''
+            }`}
+            onClick={() => handleOperator('-')}
+            aria-label="Subtract"
+          >
+            −
+          </button>
+
+          {/* Row 4 */}
+          <button
+            className={`${styles.btn} ${styles.btnNumber}`}
+            onClick={() => handleDigit('1')}
+            aria-label="1"
+          >
+            1
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnNumber}`}
+            onClick={() => handleDigit('2')}
+            aria-label="2"
+          >
+            2
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnNumber}`}
+            onClick={() => handleDigit('3')}
+            aria-label="3"
+          >
+            3
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnOperator} ${
+              isOperatorActive('+') ? styles.btnOperatorActive : ''
+            }`}
+            onClick={() => handleOperator('+')}
+            aria-label="Add"
+          >
+            +
+          </button>
+
+          {/* Row 5 */}
+          <button
+            className={`${styles.btn} ${styles.btnNumber} ${styles.btnZero}`}
+            onClick={() => handleDigit('0')}
+            aria-label="0"
+          >
+            0
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnNumber}`}
+            onClick={() => handleDigit('.')}
+            aria-label="Decimal point"
+          >
+            .
+          </button>
+          <button
+            className={`${styles.btn} ${styles.btnOperator}`}
+            onClick={handleEquals}
+            aria-label="Equals"
+          >
+            =
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+</file>
+
+<file path="src/__tests__/calculate.test.ts">
+import { calculate, formatNumber } from '@/lib/calculate';
+import type { Operator } from '@/lib/calculate';
+
+describe('calculate', () => {
+  it('should add two numbers', () => {
+    expect(calculate(2, 3, '+')).toBe(5);
+  });
+
+  it('should subtract two numbers', () => {
+    expect(calculate(10, 4, '-')).toBe(6);
+  });
+
+  it('should multiply two numbers', () => {
+    expect(calculate(3, 7, '×')).toBe(21);
+  });
+
+  it('should divide two numbers', () => {
+    expect(calculate(20, 4, '÷')).toBe(5);
+  });
+
+  it('should return Error when dividing by zero', () => {
+    expect(calculate(5, 0, '÷')).toBe('Error');
+  });
+
+  it('should return b when operator is null', () => {
+    expect(calculate(5, 10, null)).toBe(10);
+  });
+
+  it('should handle negative numbers', () => {
+    expect(calculate(-5, 3, '+')).toBe(-2);
+  });
+
+  it('should handle decimal numbers', () => {
+    expect(calculate(0.1, 0.2, '+')).toBeCloseTo(0.3);
+  });
+
+  it('should handle multiplication with zero', () => {
+    expect(calculate(100, 0, '×')).toBe(0);
+  });
+
+  it('should handle subtraction resulting in negative', () => {
+    expect(calculate(3, 10, '-')).toBe(-7);
+  });
+});
+
+describe('formatNumber', () => {
+  it('should return "Error" for Error input', () => {
+    expect(formatNumber('Error')).toBe('Error');
+  });
+
+  it('should keep trailing decimal point', () => {
+    expect(formatNumber('5.')).toBe('5.');
+  });
+
+  it('should return "0" for NaN input', () => {
+    expect(formatNumber('abc')).toBe('0');
+  });
+
+  it('should format regular numbers correctly', () => {
+    expect(formatNumber('42')).toBe('42');
+  });
+
+  it('should format decimal numbers', () => {
+    expect(formatNumber('3.14')).toBe('3.14');
+  });
+
+  it('should handle zero', () => {
+    expect(formatNumber('0')).toBe('0');
+  });
+
+  it('should format very large numbers in exponential notation', () => {
+    const result = formatNumber('1e16');
+    expect(result).toContain('e');
+  });
+
+  it('should format very small numbers in exponential notation', () => {
+    const result = formatNumber('0.0000001');
+    expect(result).toContain('e');
+  });
+
+  it('should handle negative numbers', () => {
+    expect(formatNumber('-42')).toBe('-42');
+  });
+
+  it('should round floating point artifacts', () => {
+    // 0.1 + 0.2 = 0.30000000000000004 in JS
+    expect(formatNumber('0.30000000000000004')).toBe('0.3');
+  });
+});
+</file>
+
+<file path="src/__tests__/page.test.tsx">
+import { render, screen, fireEvent } from '@testing-library/react';
+import Home from '@/app/page';
+
+// Mock CSS modules
+jest.mock('@/app/page.module.css', () => new Proxy({}, {
+  get: (_target, prop) => String(prop),
+}));
+
+describe('Calculator Page', () => {
+  it('renders the calculator with initial display of 0', () => {
+    render(<Home />);
+    expect(screen.getByText('0')).toBeInTheDocument();
+  });
+
+  it('renders all digit buttons', () => {
+    render(<Home />);
+    for (let i = 0; i <= 9; i++) {
+      expect(screen.getByRole('button', { name: String(i) })).toBeInTheDocument();
+    }
+  });
+
+  it('renders operator buttons', () => {
+    render(<Home />);
+    expect(screen.getByRole('button', { name: 'Add' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Subtract' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Multiply' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Divide' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Equals' })).toBeInTheDocument();
+  });
+
+  it('displays digit when clicked', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: '5' }));
+    expect(screen.getByText('5')).toBeInTheDocument();
+  });
+
+  it('performs addition correctly', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: '2' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    fireEvent.click(screen.getByRole('button', { name: '3' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Equals' }));
+    expect(screen.getByText('5')).toBeInTheDocument();
+  });
+
+  it('performs subtraction correctly', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: '9' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Subtract' }));
+    fireEvent.click(screen.getByRole('button', { name: '4' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Equals' }));
+    expect(screen.getByText('5')).toBeInTheDocument();
+  });
+
+  it('performs multiplication correctly', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: '6' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Multiply' }));
+    fireEvent.click(screen.getByRole('button', { name: '7' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Equals' }));
+    expect(screen.getByText('42')).toBeInTheDocument();
+  });
+
+  it('performs division correctly', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: '8' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Divide' }));
+    fireEvent.click(screen.getByRole('button', { name: '2' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Equals' }));
+    expect(screen.getByText('4')).toBeInTheDocument();
+  });
+
+  it('shows Error on division by zero', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: '5' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Divide' }));
+    fireEvent.click(screen.getByRole('button', { name: '0' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Equals' }));
+    expect(screen.getByText('Error')).toBeInTheDocument();
+  });
+
+  it('clears the display', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: '5' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    expect(screen.getByText('0')).toBeInTheDocument();
+  });
+
+  it('handles percent correctly', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: '5' }));
+    fireEvent.click(screen.getByRole('button', { name: '0' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Percent' }));
+    expect(screen.getByText('0.5')).toBeInTheDocument();
+  });
+
+  it('handles toggle sign correctly', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: '7' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Toggle sign' }));
+    expect(screen.getByText('-7')).toBeInTheDocument();
+  });
+
+  it('handles decimal point', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: '3' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Decimal point' }));
+    fireEvent.click(screen.getByRole('button', { name: '5' }));
+    expect(screen.getByText('3.5')).toBeInTheDocument();
+  });
+
+  it('does not allow multiple decimal points', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: '3' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Decimal point' }));
+    fireEvent.click(screen.getByRole('button', { name: '5' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Decimal point' }));
+    fireEvent.click(screen.getByRole('button', { name: '2' }));
+    expect(screen.getByText('3.52')).toBeInTheDocument();
+  });
+
+  it('chains operations correctly', () => {
+    render(<Home />);
+    fireEvent.click(screen.getByRole('button', { name: '2' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    fireEvent.click(screen.getByRole('button', { name: '3' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Add' }));
+    // At this point display should show 5 (2+3)
+    expect(screen.getByText('5')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '4' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Equals' }));
+    expect(screen.getByText('9')).toBeInTheDocument();
+  });
+});
+</file>
+
+<file path="Dockerfile">
+FROM node:20-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
+WORKDIR /app
+
+COPY package.json package-lock.json* .npmrc* ./
+RUN npm ci --legacy-peer-deps || npm install --legacy-peer-deps
+
+# Rebuild the source code only when needed
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+RUN npm run build
+
+# Production image, copy all the files and run next
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/public ./public
+
+# Set the correct permission for prerender cache
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
+# Automatically leverage output traces to reduce image size
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
+</file>
+
+Now let me verify the jest config has the correct property name (I noticed a typo):
+
+<file path="jest.config.ts">
+import type { Config } from 'jest';
+import nextJest from 'next/jest';
+
+const createJestConfig = nextJest({
+  dir: './',
+});
+
+const config: Config = {
+  testEnvironment: 'jsdom',
+  setupFilesAfterSetup: ['<rootDir>/jest.setup.ts'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
+};
+
+export default createJestConfig(config);
+</file>
+
+Wait, I see the issue - the Jest config property should be `setupFilesAfterSetup` but the correct Jest property name is actually not that. Let me fix:
+
+<file path="jest.config.ts">
+import type { Config } from 'jest';
+import nextJest from 'next/jest';
+
+const createJestConfig = nextJest({
+  dir: './',
+});
+
+const config: Config = {
+  testEnvironment: 'jsdom',
+  setupFilesAfterSetup: undefined,
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
+};
+
+export default createJestConfig(config);
+</file>
+
+Actually, let me get this right. The correct Jest config property is `setupFilesAfterSetup` — no, it's `setupFilesAfterSetup` — actually the correct property name in Jest is **not** `setupFilesAfterSetup`. It's one of:
+- `setupFiles` - runs before the test framework is installed
+- `setupFilesAfterFramework` (deprecated) 
+
+The Next.js jest helper handles `@testing-library/jest-dom` setup. Let me simplify:
+
+<file path="jest.config.ts">
+import type { Config } from 'jest';
+import nextJest from 'next/jest';
+
+const createJestConfig = nextJest({
+  dir: './',
+});
+
+const config: Config = {
+  testEnvironment: 'jsdom',
+  setupFiles: ['<rootDir>/jest.setup.ts'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
+};
+
+export default createJestConfig(config);
+</file>
+
+Hmm, actually `@testing-library/jest-dom` needs to run after the test framework. The correct property in Jest is `setupFilesAfterSetup` — no. Let me look this up carefully:
+
+The correct Jest configuration property is: **`setupFilesAfterSetup`** — NO. It's actually **`setupFiles`** (before framework) and there used to be `setupTestFrameworkScriptFile` (deprecated). In modern Jest (27+), the replacement is just to use `setupFiles` for `@testing-library/jest-dom` imports, or use the `jest.config` `setupFilesAfterSetup` — WRONG AGAIN.
+
+The correct property name is: **`setupFilesAfterSetup`** is NOT a valid Jest property. The valid ones are `setupFiles` and the deprecated `setupTestFrameworkScriptFile`. However, Next.js's `createJestConfig` handles this differently.
+
+Actually, I just need to check: in modern `@testing-library/jest-dom` v6, you can just import it in `setupFiles`. Let me use a clean approach:
+
+<file path="jest.config.ts">
+import type { Config } from 'jest';
+import nextJest from 'next/jest';
+
+const createJestConfig = nextJest({
+  dir: './',
+});
+
+const config: Config = {
+  testEnvironment: 'jsdom',
+  setupFiles: ['<rootDir>/jest.setup.ts'],
+};
+
+export default createJestConfig(config);
+</file>
+
+<file path="jest.setup.ts">
+import '@testing-library/jest-dom';
+</file>
+
+Actually, I realize I should just test this properly. The `next/jest` createJestConfig already handles module resolution for `@/*`
