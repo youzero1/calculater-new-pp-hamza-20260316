@@ -1,0 +1,43 @@
+'Error') return prev;
+      if (prev.display.startsWith('-')) {
+        return { ...prev, display: prev.display.slice(1) };
+      }
+      return { ...prev, display: '-' + prev.display };
+    });
+  }, []);
+
+  const handlePercent = useCallback(() => {
+    setState((prev) => {
+      if (prev.display === 'Error') return prev;
+      const value = parseFloat(prev.display);
+      if (isNaN(value)) return prev;
+      const result = value / 100;
+      return { ...prev, display: formatNumber(String(result)), justCalculated: false };
+    });
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      const key = e.key;
+
+      if (key >= '0' && key <= '9') {
+        e.preventDefault();
+        handleDigit(key);
+      } else if (key === '.') {
+        e.preventDefault();
+        handleDigit('.');
+      } else if (key === '+') {
+        e.preventDefault();
+        handleOperator('+');
+      } else if (key === '-') {
+        e.preventDefault();
+        handleOperator('-');
+      } else if (key === '*') {
+        e.preventDefault();
+        handleOperator('×');
+      } else if (key === '/') {
+        e.preventDefault();
+        handleOperator('÷');
+      } else if (key
