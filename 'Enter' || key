@@ -1,0 +1,13 @@
+'=') {
+        e.preventDefault();
+        handleEquals();
+      } else if (key === 'Escape') {
+        e.preventDefault();
+        handleClear();
+      } else if (key === 'Backspace') {
+        e.preventDefault();
+        setState((prev) => {
+          if (prev.waitingForOperand || prev.justCalculated || prev.display === 'Error') {
+            return { ...prev, display: '0' };
+          }
+          if (prev.display.length
